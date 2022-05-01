@@ -1,0 +1,25 @@
+{
+	"name": "Vichy IM70.3",
+	"symbol": "FL",
+	"description": "Ironman 70.3 Vichy 2022. Digital medal for race finishers, by Finish Lines",
+	"image": "0.png",
+	"properties": {
+		"files": [
+			{
+				"uri": "0.png",
+				"type": "image/png"
+			}
+		],
+		"creators": [
+			{
+				"address": "4mS2PBsUVhPdoqRhaBGF9hXeRLZPB7BkriUxECRrQhz6",
+				"share": 100
+			}
+		]
+	},
+	"attributes": [
+		{ "trait_type": "Race name", "value": "Ironman 70.3 Vichy" },
+		{ "trait_type": "Race date", "value": "2022-08-20T00:00:00.000Z" },
+		{ "trait_type": "Race distance", "value": "113km / 70.3-mile" }
+	]
+}

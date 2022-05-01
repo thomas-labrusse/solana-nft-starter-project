@@ -1,0 +1,25 @@
+{
+	"name": "London Marathon",
+	"symbol": "FL",
+	"description": "London Marathon 2022. Digital medal for race finishers, by Finish Lines",
+	"image": "1.png",
+	"properties": {
+		"files": [
+			{
+				"uri": "1.png",
+				"type": "image/png"
+			}
+		],
+		"creators": [
+			{
+				"address": "4mS2PBsUVhPdoqRhaBGF9hXeRLZPB7BkriUxECRrQhz6",
+				"share": 100
+			}
+		]
+	},
+	"attributes": [
+		{ "trait_type": "Race name", "value": "London Marathon" },
+		{ "trait_type": "Race date", "value": "2022-10-02T00:00:00.000Z" },
+		{ "trait_type": "Race distance", "value": "42.195km / 26.2-mile" }
+	]
+}
