@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useCallback } from 'react'
 import { Connection, PublicKey } from '@solana/web3.js'
 import { Program, Provider, web3 } from '@project-serum/anchor'
 import { MintLayout, TOKEN_PROGRAM_ID, Token } from '@solana/spl-token'
@@ -14,6 +14,17 @@ import {
 	CIVIC,
 } from './helpers'
 
+//NOTE: TEST FOR METADATA
+import { programs } from '@metaplex/js'
+
+// Import components
+import CountdownTimer from '../CountdownTimer'
+
+//NOTE: TEST FOR METADATA
+const {
+	metadata: { Metadata },
+} = programs
+
 const { SystemProgram } = web3
 const opts = {
 	preflightCommitment: 'processed',
@@ -21,6 +32,8 @@ const opts = {
 
 const CandyMachine = ({ walletAddress }) => {
 	const [candyMachine, setCandyMachine] = useState(null)
+	const [mints, setMints] = useState([])
+	const [loading, setLoading] = useState()
 
 	const getCandyMachineCreator = async (candyMachine) => {
 		const candyMachineID = new PublicKey(candyMachine)
@@ -305,9 +318,38 @@ const CandyMachine = ({ walletAddress }) => {
 		return []
 	}
 
+	const getMintedNFTs = useCallback(async () => {
+		setLoading(true)
+
+		try {
+			let imgUrls = []
+			if (!candyMachine) return
+			const candyMachinePubKey = await getCandyMachineCreator(candyMachine.id)
+
+			const findMany = await Metadata.findMany(
+				candyMachine.program.provider.connection,
+				{ creators: [candyMachinePubKey[0].toString()] }
+			)
+
+			console.log('find many:', findMany)
+
+			for (const nft of findMany) {
+				const metaDataUri = nft.data.data.uri
+				let response = await fetch(metaDataUri)
+				let imgUrl = await response.json()
+				imgUrls.push(imgUrl)
+			}
+			setMints(imgUrls)
+		} catch (e) {
+			console.error('Unable to get minted nfts', e)
+		}
+		setLoading(false)
+	}, [candyMachine, mints])
+
 	//EXTRA CODE
 	useEffect(() => {
 		getCandyMachineState()
+		getMintedNFTs()
 	}, [])
 
 	const getProvider = () => {
@@ -395,19 +437,62 @@ const CandyMachine = ({ walletAddress }) => {
 		})
 	}
 
+	// COUNTDOWN CODE
+	const renderDropTimer = () => {
+		//Get the current date adnd dropDate in a JavaScript Date object
+		const currentDate = new Date()
+		const dropDate = new Date(candyMachine.state.goLiveData * 1000)
+
+		// If currentDate is before dropDate, render our Countdown component
+		if (currentDate < dropDate) {
+			console.log('Before drop date!')
+			// Don't forget to pass over your dropDate!
+			return <CountdownTimer dropDate={dropDate} />
+		}
+
+		// Else let's just return the current drop date
+		return <p>{`Drop Date: ${candyMachine.state.goLiveDateTimeString}`}</p>
+	}
+
+	// MINTED ITEMS CODE
+	const renderMintedItems = () => (
+		<div className='gif-container'>
+			<p className='sub-text'>Minted Servants ✨</p>
+			<div className='gif-grid'>
+				{mints.map((mint, i) => (
+					<div className='gif-item' key={i}>
+						<img src={mint.image} alt={`Minted NFT ${mint}`} />
+					</div>
+				))}
+			</div>
+		</div>
+	)
+
 	//EXISTING BOILER PLATE
 	return (
 		// Only show this if machineStats is available
-		candyMachine && (
+		candyMachine &&
+		candyMachine.state && (
 			<div className='machine-container'>
+				{renderDropTimer()}
 				<p>{`Drop Date: ${candyMachine.state.goLiveDateTimeString}`}</p>
 				<p>{`Items Minted: ${candyMachine.state.itemsRedeemed} / ${candyMachine.state.itemsAvailable}`}</p>
-				<button className='cta-button mint-button' onClick={mintToken}>
-					Mint NFT
-				</button>
+				{candyMachine.state.itemsRedeemed ===
+				candyMachine.state.itemsAvailable ? (
+					<p className='sub-text'>Sold Out 🙊</p>
+				) : (
+					<button className='cta-button mint-button' onClick={mintToken}>
+						Mint NFT
+					</button>
+				)}
+				{mints.length > 0 && renderMintedItems()}
+				{loading && <p>LOADING MINTS...</p>}
 			</div>
 		)
 	)
 }
 
 export default CandyMachine
+
+//3FuaZZGF1eV51pyNBvPwMKcdfdepCbmTbvb6vH3T9MYmBuKnSmCzQ31jV9Ki3TTGP1j5AbAMDFkBPvHvvDw6CkfW
+//4wP8RzBWFjjSid2G6esQURYYMnwURqpxTqC932jh5re6VwrZhbkw2dERZ1oSDKkseQj3NhfMWub2N769fjmUtGUe

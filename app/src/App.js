@@ -1,9 +1,18 @@
 import React, { useEffect, useState } from 'react'
+import { Connection } from '@solana/web3.js'
 import './App.css'
 import twitterLogo from './assets/twitter-logo.svg'
 
 // Components
 import CandyMachine from './CandyMachine'
+
+//NOTE: TEST FOR METADATA
+import { programs } from '@metaplex/js'
+
+//NOTE: TEST FOR METADATA
+const {
+	metadata: { Metadata },
+} = programs
 
 // Constants
 const TWITTER_HANDLE = '_buildspace'
@@ -11,6 +20,22 @@ const TWITTER_LINK = `https://twitter.com/${TWITTER_HANDLE}`
 
 const App = () => {
 	const [walletAddress, setWalletAddress] = useState(null)
+
+	//NOTE: TEST CODE ----------
+	const getAllNFT = async () => {
+		const rpcHost = process.env.REACT_APP_SOLANA_RPC_URL
+		console.log('RPC URL:', rpcHost)
+		const connection = new Connection(rpcHost)
+		console.log('connection:', connection)
+		const ownerPublickey = process.env.REACT_APP_OWNER_PUBLIC_KEY
+		const nftsmetadata = await Metadata.findDataByOwner(
+			connection,
+			ownerPublickey
+		)
+		console.log('Metadata:', nftsmetadata)
+	}
+
+	//NOTE: TEST CODE ----------
 
 	const checkIfWalletIsConnected = async () => {
 		try {
@@ -34,6 +59,7 @@ const App = () => {
 
 		if (solana) {
 			const response = await solana.connect()
+			console.log('Solana connect response :', response)
 			console.log('Connected with Public Key:', response.publicKey.toString())
 			setWalletAddress(response.publicKey.toString())
 		}
@@ -61,6 +87,9 @@ const App = () => {
 		<div className='App'>
 			<div className='container'>
 				<div className='header-container'>
+					<div>
+						<button onClick={getAllNFT}>get all nfts</button>
+					</div>
 					<p className='header'>🍭 Candy Drop</p>
 					<p className='sub-text'>NFT drop machine with fair mint</p>
 					{!walletAddress && renderNotConnectedContainer()}
